@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
+import "bootstrap/dist/css/bootstrap.css";
 
 function Pets() {
   const [petsData, setPetsData] = useState([]); //In the state we will store the fetched data
+  const [page, setPage] = useState(0);
 
-  useEffect(() => {
-    fetchData();
-  }, []); //fetch data when the component mounts
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       //Getting the data
-      const response = await fetch("http://localhost:8080/pet");
+      const response = await fetch(
+        `http://localhost:8080/pet/pageable?page=${page}&size=5`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
@@ -19,6 +19,21 @@ function Pets() {
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
+  }, [page]);
+
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]); //fetch data when the component mounts -this was before pagination
+  //with adding of [page] now we fetching data when the page state changes
+
+  const goToPreviousPage = () => {
+    if (page > 0) {
+      setPage(page - 1);
+    }
+  };
+
+  const goToNextPage = () => {
+    setPage(page + 1);
   };
 
   return (
@@ -67,6 +82,22 @@ function Pets() {
                   {/* <tr class="border-b border-neutral-200 dark:border-white/10"></tr> */}
                 </tbody>
               </table>
+
+              <div class="flex">
+                <button
+                  onClick={goToPreviousPage}
+                  class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Previous
+                </button>
+
+                <button
+                  onClick={goToNextPage}
+                  class="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                >
+                  Next
+                </button>
+              </div>
             </div>
           </div>
         </div>
