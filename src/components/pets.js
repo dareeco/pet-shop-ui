@@ -4,6 +4,7 @@ import "bootstrap/dist/css/bootstrap.css";
 function Pets() {
   const [petsData, setPetsData] = useState([]); //In the state we will store the fetched data
   const [page, setPage] = useState(0);
+  const [petsLength, setPetsLength] = useState();
 
   const fetchData = useCallback(async () => {
     try {
@@ -21,19 +22,39 @@ function Pets() {
     }
   }, [page]);
 
+  const getListLength = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/pet/length`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const length = await response.json();
+      setPetsLength(length);
+    } catch (error) {
+      console.error("Error fetching length: ", error);
+    }
+  };
+
   useEffect(() => {
     fetchData();
+    getListLength();
   }, [fetchData]); //fetch data when the component mounts -this was before pagination
   //with adding of [page] now we fetching data when the page state changes
 
   const goToPreviousPage = () => {
     if (page > 0) {
       setPage(page - 1);
+    } else {
+      alert("No more data to display on previous page :D");
     }
   };
 
   const goToNextPage = () => {
-    setPage(page + 1);
+    if (page < petsLength / 5 - 1) {
+      setPage(page + 1);
+    } else {
+      alert("No more data to display on next page :D");
+    }
   };
 
   return (
