@@ -5,12 +5,13 @@ function Pets() {
   const [petsData, setPetsData] = useState([]); //In the state we will store the fetched data
   const [page, setPage] = useState(0);
   const [petsLength, setPetsLength] = useState();
+  const [petsPerPage, setPetsPerPage] = useState(5); //default value from the dropdown will be 1
 
   const fetchData = useCallback(async () => {
     try {
       //Getting the data
       const response = await fetch(
-        `http://localhost:8080/pet/pageable?page=${page}&size=5`
+        `http://localhost:8080/pet/pageable?page=${page}&size=${petsPerPage}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
@@ -20,7 +21,7 @@ function Pets() {
     } catch (error) {
       console.error("Error fetching data: ", error);
     }
-  }, [page]);
+  }, [page, petsPerPage]);
 
   const getListLength = async () => {
     try {
@@ -50,7 +51,8 @@ function Pets() {
   };
 
   const goToNextPage = () => {
-    if (page < petsLength / 5 - 1) {
+    if (page < Math.ceil(petsLength / petsPerPage) - 1) {
+      //Math function because we only have whole number of pages
       setPage(page + 1);
     } else {
       alert("No more data to display on next page :D");
@@ -104,20 +106,34 @@ function Pets() {
                 </tbody>
               </table>
 
-              <div class="flex">
+              <div className="flex justify-center mt-3">
                 <button
+                  className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black"
                   onClick={goToPreviousPage}
-                  class="flex items-center justify-center px-3 h-8 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
                 >
                   Previous
                 </button>
 
-                <button
-                  onClick={goToNextPage}
-                  class="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+                <div>
+                  <button
+                    className="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black"
+                    onClick={goToNextPage}
+                  >
+                    Next
+                  </button>
+                </div>
+              </div>
+              <div className="w-1/8 float-right" style={{ marginTop: "-4.5%" }}>
+                <select
+                  onChange={(e) => setPetsPerPage(parseInt(e.target.value))}
                 >
-                  Next
-                </button>
+                  {/*we must do it onChange otherwise it will be stuck in
+                  re-rendering loop and throw errors */}
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                  <option value="20">20</option>
+                </select>
               </div>
             </div>
           </div>
