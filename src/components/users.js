@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 
 function Users() {
   const [usersData, setUsersData] = useState([]);
@@ -6,13 +6,11 @@ function Users() {
   const [usersLength, setUsersLength] = useState();
   const [usersPerPage, setUsersPerPage] = useState(5);
 
-  useEffect(() => {
-    fetchData();
-    getListLength();
-  }, [fetchData]);
-  const fetchData = useCallBack(async () => {
+  const fetchData = useCallback(async () => {
     try {
-      const response = await fetch("http://localhost:8080/user");
+      const response = await fetch(
+        `http://localhost:8080/user/pageable?page=${page}&size=${usersPerPage}`
+      );
       if (!response.ok) {
         throw new Error("Failed to fetch data");
       }
@@ -33,6 +31,27 @@ function Users() {
       setUsersLength(length);
     } catch (error) {
       console.error("Error fetching length: ", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+    getListLength();
+  }, [fetchData]); //We need it here - you can't use fetchData before initialization
+
+  const goToPreviousPage = () => {
+    if (page > 0) {
+      setPage(page - 1);
+    } else {
+      alert("No more data to display on previous page :D");
+    }
+  };
+
+  const goToNextPage = () => {
+    if (page < Math.ceil(usersLength / usersPerPage) - 1) {
+      setPage(page + 1);
+    } else {
+      alert("No more data to display on next page :D");
     }
   };
   return (
@@ -78,24 +97,29 @@ function Users() {
                       </td>
                     </tr>
                   ))}
-                  {/* <tr class="border-b border-neutral-200 dark:border-white/10"></tr> */}
                 </tbody>
               </table>
               <div className="flex justify-center  mt-3">
-                <button className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black">
+                <button
+                  className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black"
+                  onClick={goToPreviousPage}
+                >
                   Previous
                 </button>
 
                 <div>
-                  <button className="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black">
+                  <button
+                    className="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black"
+                    onClick={goToNextPage}
+                  >
                     Next
                   </button>
                 </div>
               </div>
               <div className="w-1/8 float-right" style={{ marginTop: "-4.5%" }}>
-                <select>
-                  {/*we must do it onChange otherwise it will be stuck in
-                  re-rendering loop and throw errors */}
+                <select
+                  onChange={(e) => setUsersPerPage(parseInt(e.target.value))}
+                >
                   <option value="5">5</option>
                   <option value="10">10</option>
                   <option value="15">15</option>
