@@ -1,11 +1,15 @@
 import React, { useEffect, useState, useCallback } from "react";
 import "bootstrap/dist/css/bootstrap.css";
+import "@fortawesome/fontawesome-free/css/all.css";
+import DetailsDialog from "./detailsDialog";
 
 function Pets() {
   const [petsData, setPetsData] = useState([]); //In the state we will store the fetched data
   const [page, setPage] = useState(0);
   const [petsLength, setPetsLength] = useState();
   const [petsPerPage, setPetsPerPage] = useState(5); //default value from the dropdown will be 1
+  const [isModalOpen, setIsModalOpen] = useState(false); //isModalOpen and selectedPet will be used
+  const [selectedPet, setSelectedPet] = useState(null); //for opening the details dialog when clicking on the icons
 
   const fetchData = useCallback(async () => {
     try {
@@ -59,26 +63,33 @@ function Pets() {
     }
   };
 
+  const handleDialog = (pet) => {
+    setSelectedPet(pet);
+    setIsModalOpen(true);
+  };
   return (
     <div>
-      <div class="w-1/2 mx-auto flex flex-col">
-        <div class="overflow-x-auto sm:-mx-6 lg:-mx-8">
-          <div class="inline-block min-w-full py-2 sm:px-6 lg:px-8">
-            <div class="overflow-hidden">
-              <table class="min-w-full text-left text-sm font-light text-surface dark:text-white">
-                <thead class="border-b border-neutral-200 font-medium dark:border-white/10">
+      <div className="w-1/2 mx-auto flex flex-col">
+        <div className="overflow-x-auto sm:-mx-6 lg:-mx-8">
+          <div className="inline-block min-w-full py-2 sm:px-6 lg:px-8">
+            <div className="overflow-hidden">
+              <table className="min-w-full text-left text-sm font-light text-surface dark:text-white">
+                <thead className="border-b border-neutral-200 font-medium dark:border-white/10">
                   <tr>
-                    <th scope="col" class="px-6 py-4">
+                    <th scope="col" className="px-6 py-4">
                       Name
                     </th>
-                    <th scope="col" class="px-6 py-4">
+                    <th scope="col" className="px-6 py-4">
                       Type
                     </th>
-                    <th scope="col" class="px-6 py-4">
+                    <th scope="col" className="px-6 py-4">
                       Date of Birth
                     </th>
-                    <th scope="col" class="px-6 py-4">
+                    <th scope="col" className="px-6 py-4">
                       Price
+                    </th>
+                    <th scope="col" className="px-6 py-4 flex justify-center">
+                      Details
                     </th>
                   </tr>
                 </thead>
@@ -86,22 +97,45 @@ function Pets() {
                   {petsData.map((pet) => (
                     <tr
                       key={pet.id}
-                      class="border-b border-neutral-200 dark:border-white/10"
+                      className="border-b border-neutral-200 dark:border-white/10"
                     >
-                      <td class="whitespace-nowrap px-6 py-4 font-medium">
+                      <td className="whitespace-nowrap px-6 py-4 font-medium">
                         {pet.name}
                       </td>
-                      <td class="whitespace-nowrap px-6 py-4 font-medium">
+                      <td className="whitespace-nowrap px-6 py-4 font-medium">
                         {pet.type}
                       </td>
-                      <td class="whitespace-nowrap px-6 py-4 font-medium">
+                      <td className="whitespace-nowrap px-6 py-4 font-medium">
                         {pet.dateOfBirth}
                       </td>
-                      <td class="whitespace-nowrap px-6 py-4 font-medium">
+                      <td className="whitespace-nowrap px-6 py-4 font-medium">
                         {pet.price}$
+                      </td>
+                      <td className="whitespace-nowrap px-6 py-4 font-medium flex justify-center">
+                        {pet.type === "CAT" ? (
+                          <i
+                            className="fa-sharp fa-solid fa-cat"
+                            onClick={() => handleDialog(pet)}
+                          ></i>
+                        ) : (
+                          <i
+                            className="fa-sharp fa-solid fa-paw"
+                            onClick={() => handleDialog(pet)}
+                          ></i>
+                        )}
                       </td>
                     </tr>
                   ))}
+                  {/* Render DetailsDialog outside of the table */}
+                  {/* Render DetailsDialog outside of the table */}
+                  {isModalOpen && (
+                    <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                      <DetailsDialog
+                        pet={selectedPet}
+                        onClose={() => setIsModalOpen(false)}
+                      />
+                    </div>
+                  )}
                   {/* <tr class="border-b border-neutral-200 dark:border-white/10"></tr> */}
                 </tbody>
               </table>

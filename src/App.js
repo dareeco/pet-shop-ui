@@ -91,7 +91,7 @@ function App() {
             </div>
           </div>
 
-          <div class="sm:hidden" id="mobile-menu">
+          {/* <div class="sm:hidden" id="mobile-menu">
             <div class="space-y-1 px-2 pb-3 pt-2">
               <a
                 href="#"
@@ -119,7 +119,7 @@ function App() {
                 Calendar
               </a>
             </div>
-          </div>
+          </div> */}
         </nav>
 
         <Routes>

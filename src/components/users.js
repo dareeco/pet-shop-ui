@@ -2,10 +2,15 @@ import React, { useEffect, useState } from "react";
 
 function Users() {
   const [usersData, setUsersData] = useState([]);
+  const [page, setPage] = useState(0);
+  const [usersLength, setUsersLength] = useState();
+  const [usersPerPage, setUsersPerPage] = useState(5);
+
   useEffect(() => {
     fetchData();
-  }, []);
-  const fetchData = async () => {
+    getListLength();
+  }, [fetchData]);
+  const fetchData = useCallBack(async () => {
     try {
       const response = await fetch("http://localhost:8080/user");
       if (!response.ok) {
@@ -15,6 +20,19 @@ function Users() {
       setUsersData(data);
     } catch (error) {
       console.log("Error occured, here's the details: ", error);
+    }
+  }, [page, usersPerPage]);
+
+  const getListLength = async () => {
+    try {
+      const response = await fetch(`http://localhost:8080/user/length`);
+      if (!response.ok) {
+        throw new Error("Failed to fetch data");
+      }
+      const length = await response.json();
+      setUsersLength(length);
+    } catch (error) {
+      console.error("Error fetching length: ", error);
     }
   };
   return (
@@ -63,6 +81,27 @@ function Users() {
                   {/* <tr class="border-b border-neutral-200 dark:border-white/10"></tr> */}
                 </tbody>
               </table>
+              <div className="flex justify-center  mt-3">
+                <button className="flex items-center justify-center px-3 h-8 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black">
+                  Previous
+                </button>
+
+                <div>
+                  <button className="flex items-center justify-center px-3 h-8 ms-3 text-sm font-medium text-white bg-gray-800 border border-gray-700 rounded-lg hover:bg-gray-400 dark:bg-gray-800 dark:border-gray-700 dark:text-white dark:hover:bg-gray-200 dark:hover:text-black">
+                    Next
+                  </button>
+                </div>
+              </div>
+              <div className="w-1/8 float-right" style={{ marginTop: "-4.5%" }}>
+                <select>
+                  {/*we must do it onChange otherwise it will be stuck in
+                  re-rendering loop and throw errors */}
+                  <option value="5">5</option>
+                  <option value="10">10</option>
+                  <option value="15">15</option>
+                  <option value="20">20</option>
+                </select>
+              </div>
             </div>
           </div>
         </div>
